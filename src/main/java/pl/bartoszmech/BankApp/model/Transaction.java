@@ -2,17 +2,20 @@ package pl.bartoszmech.BankApp.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Table(name = "transactions")
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id")
