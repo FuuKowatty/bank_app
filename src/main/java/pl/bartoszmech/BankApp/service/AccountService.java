@@ -40,24 +40,6 @@ public class AccountService {
     public void saveAccount(Account account) {
         accountRepository.save(account);
     }
-    public void withdrawMoney(Long userId, String currency, Double amount) {
-        Account userAccount = getUserAccountByCurrency(userId, currency);
-        updateBalance(userAccount, amount);
-    }
-
-    public void depositMoney(Long userId, String currency, Double amount, Double DEBIT_LIMIT) {
-        Account userAccount = getUserAccountByCurrency(userId, currency);
-        Double currentBalance = userAccount.getBalance();
-        Double withdrawalAmount = -amount;
-
-        boolean isLegalDebit = currentBalance + withdrawalAmount > DEBIT_LIMIT;
-
-        if (!isLegalDebit) {
-            System.out.println("Deposit failed. The transaction exceeds the debit limit.");
-            return;
-        }
-        updateBalance(userAccount, withdrawalAmount);
-    }
 
     public void updateBalance(Account account, Double amount) {
         account.setBalance(account.getBalance() + (amount));
