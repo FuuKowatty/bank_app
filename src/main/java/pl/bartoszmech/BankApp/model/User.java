@@ -1,42 +1,28 @@
 package pl.bartoszmech.BankApp.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import pl.bartoszmech.BankApp.exception.UserNotFoundException;
+import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+@Data
 @Table(name = "users")
 @Entity
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "first_name")
     private String firstName;
+    private String lastName;
+    @Column(name = "username")
+    private String username;
+    @Column(name = "password")
+    private String password;
 
-    public User(String firstName) {
+    public User(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.password = password;
     }
+    public User() {}
 
-    public User() {
-        super();
-    }
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

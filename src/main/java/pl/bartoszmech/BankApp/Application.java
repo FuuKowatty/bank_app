@@ -8,6 +8,7 @@ import pl.bartoszmech.BankApp.exception.UserNotFoundException;
 import pl.bartoszmech.BankApp.model.Account;
 import pl.bartoszmech.BankApp.model.User;
 import pl.bartoszmech.BankApp.service.AccountService;
+import pl.bartoszmech.BankApp.service.AuthenticationService;
 import pl.bartoszmech.BankApp.service.InputService;
 import pl.bartoszmech.BankApp.service.UserService;
 
@@ -20,11 +21,13 @@ public class Application implements CommandLineRunner {
 	private final AccountService accountService;
 	private final UserService userService;
 	private final InputService inputService;
+	private final AuthenticationService authenticationService;
 
-	public Application(AccountService accountService, UserService userService, InputService inputService) {
+	public Application(AccountService accountService, UserService userService, InputService inputService, AuthenticationService authenticationService) {
 		this.accountService = accountService;
 		this.userService = userService;
 		this.inputService = inputService;
+		this.authenticationService = authenticationService;
 	}
 
 	public static void main(String[] args) {
@@ -39,12 +42,16 @@ public class Application implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws UserNotFoundException {
-
-		// ITS DEMO VERSION IN LATER VERSION IT WILL BE NORMAL AUTHENTICATION
-		String firstName = inputService.askForName();
-		// login simulation
-		Long loggedUserId = RegisterUser(firstName);
-
+		Long loggedUserId;
+		byte authenticateOption = inputService.askForAuthentication();
+		if(authenticateOption == 1) {
+			loggedUserId = authenticationService.login();
+		} else if (authenticateOption == 2) {
+			loggedUserId = authenticationService.register(DEFAULT_CURRENCY);
+		} else {
+			System.out.println("Something went wrong");
+			return;
+		}
 		byte choice;
 		do {
 			choice = inputService.printMenu();
@@ -56,12 +63,6 @@ public class Application implements CommandLineRunner {
 		} while (choice != 4);
 	}
 
-	private Long RegisterUser(String firstName) {
-		// creates user and gets id
-		Long userId =  userService.saveUser(new User(firstName)).getId();
-		createAccount(userId);
-		return userId;
-	}
 
 	private void depositMoney(Long userId, String currency) {
 		Double amount = (inputService.askForAmount() * -1); // because we sum up to our balance
@@ -93,8 +94,4 @@ public class Application implements CommandLineRunner {
 		System.out.println(userAccounts.get(0).getBalance());
 	}
 
-	private void createAccount(Long userId) {
-		User user = userService.findByUserId(userId);;
-		accountService.createAccount(user, DEFAULT_CURRENCY);
-	}
 }

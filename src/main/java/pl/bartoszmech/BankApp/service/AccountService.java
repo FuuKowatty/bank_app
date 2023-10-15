@@ -3,6 +3,7 @@ package pl.bartoszmech.BankApp.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.bartoszmech.BankApp.enums.ExceptionMessages;
+import pl.bartoszmech.BankApp.exception.AccountNotFoundException;
 import pl.bartoszmech.BankApp.exception.UserNotFoundException;
 import pl.bartoszmech.BankApp.model.Account;
 import pl.bartoszmech.BankApp.model.User;
@@ -34,7 +35,7 @@ public class AccountService {
         return userAccounts.stream()
                 .filter(a -> Objects.equals(a.getCurrency(), currency))
                 .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(ExceptionMessages.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new AccountNotFoundException(ExceptionMessages.USER_NOT_FOUND.getMessage()));
     }
 
     public void saveAccount(Account account) {
