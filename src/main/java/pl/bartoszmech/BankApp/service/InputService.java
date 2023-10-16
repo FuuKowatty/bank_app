@@ -5,6 +5,7 @@ import pl.bartoszmech.BankApp.enums.ExceptionMessages;
 import pl.bartoszmech.BankApp.exception.InvalidValueException;
 import pl.bartoszmech.BankApp.model.User;
 
+import java.util.Map;
 import java.util.Scanner;
 
 @Service
@@ -19,7 +20,8 @@ public class InputService {
         System.out.println("1. See your balance");
         System.out.println("2. Deposit money");
         System.out.println("3. Withdraw money");
-        System.out.println("4. Quit App");
+        System.out.println("4. Create foreign account");
+        System.out.println("5. Quit App");
         byte choice = scanner.nextByte();
         scanner.nextLine();
 
@@ -89,5 +91,21 @@ public class InputService {
         user.setPassword(scanner.nextLine());
 
         return user;
+    }
+
+    public String askForCurrency() {
+        Map<String, String> allowedCurrencies = CurrencyService.allowedCurrencies();
+        System.out.println("Select your new account currency");
+
+        for (Map.Entry<String, String> entry : allowedCurrencies.entrySet()) {
+            System.out.println(entry.getKey() + ". " + entry.getValue());
+        }
+        byte choice = scanner.nextByte();
+
+        if(choice > 0 && choice <= 5) {
+            return allowedCurrencies.get("" + choice);
+        }
+
+        throw new InvalidValueException("Provided value is not valid");
     }
 }

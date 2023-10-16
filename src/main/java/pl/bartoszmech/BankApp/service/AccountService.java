@@ -46,4 +46,13 @@ public class AccountService {
         account.setBalance(account.getBalance() + (amount));
         saveAccount(account);
     }
+
+    public String getCurrencySymbol(String currency) {
+        int hyphenIndex = currency.indexOf(" - ");
+        if (hyphenIndex == -1) {
+            throw new IllegalArgumentException("Invalid string.");
+        }
+        return currency.substring(0, hyphenIndex);
+    }
+
 }

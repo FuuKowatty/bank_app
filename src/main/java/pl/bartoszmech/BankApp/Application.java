@@ -6,12 +6,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import pl.bartoszmech.BankApp.exception.UserNotFoundException;
 import pl.bartoszmech.BankApp.model.Account;
-import pl.bartoszmech.BankApp.model.User;
-import pl.bartoszmech.BankApp.service.AccountService;
-import pl.bartoszmech.BankApp.service.AuthenticationService;
-import pl.bartoszmech.BankApp.service.InputService;
-import pl.bartoszmech.BankApp.service.UserService;
+import pl.bartoszmech.BankApp.service.*;
 
+import java.io.IOException;
 import java.util.List;
 @SpringBootApplication
 public class Application implements CommandLineRunner {
@@ -22,26 +19,25 @@ public class Application implements CommandLineRunner {
 	private final UserService userService;
 	private final InputService inputService;
 	private final AuthenticationService authenticationService;
+	private final CurrencyService currencyService;
 
-	public Application(AccountService accountService, UserService userService, InputService inputService, AuthenticationService authenticationService) {
+	public Application(AccountService accountService, UserService userService, InputService inputService, AuthenticationService authenticationService, CurrencyService currencyService) {
 		this.accountService = accountService;
 		this.userService = userService;
 		this.inputService = inputService;
 		this.authenticationService = authenticationService;
+		this.currencyService = currencyService;
 	}
 
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(Application.class);
-
 		// disable spring banner
 		app.setBannerMode(Banner.Mode.OFF);
-
-
 		app.run(args);
 	}
 
 	@Override
-	public void run(String... args) throws UserNotFoundException {
+	public void run(String... args) throws UserNotFoundException, IOException {
 		Long loggedUserId;
 		byte authenticateOption = inputService.askForAuthentication();
 		if(authenticateOption == 1) {
@@ -59,10 +55,16 @@ public class Application implements CommandLineRunner {
 				case 1 -> viewBalance(loggedUserId);
 				case 2 -> withdrawMoney(loggedUserId, DEFAULT_CURRENCY);
 				case 3 -> depositMoney(loggedUserId, DEFAULT_CURRENCY);
+				case 4 -> createForeignAccount(loggedUserId);
 			}
-		} while (choice != 4);
+		} while (choice != 5);
 	}
 
+	private void createForeignAccount(Long loggedUserId) {
+		String output = inputService.askForCurrency();
+		String currency = accountService.getCurrencySymbol(output);
+		accountService.createAccount(userService.findByUserId(loggedUserId), currency);
+	}
 
 	private void depositMoney(Long userId, String currency) {
 		Double amount = (inputService.askForAmount() * -1); // because we sum up to our balance
