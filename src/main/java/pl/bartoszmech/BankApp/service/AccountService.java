@@ -45,7 +45,12 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public void updateBalance(Account account, Double amount) {
+    public void updateBalance(Account senderAccount, Account recipientAccount, double amount) {
+        addToBalance(senderAccount, -amount);
+        addToBalance(recipientAccount, convertMoneyByRate(recipientAccount.getCurrency(), amount));
+    }
+
+    public void addToBalance(Account account, Double amount) {
         account.setBalance(account.getBalance() + amount);
         saveAccount(account);
     }
@@ -63,26 +68,45 @@ public class AccountService {
     }
 
     public void transferMoneyToForeignAccount(long userId, double amount) {
-        Account foreignAccount = getUserAccounts(userId).stream()
-                .filter(a -> !Objects.equals(a.getCurrency(), CurrencyService.actualCurrency))
-                .findFirst()
-                .orElseThrow(() -> new AccountNotFoundException(ExceptionMessages.USER_NOT_FOUND.getMessage()));
+        Account foreignAccount = null;
+        Account primaryAccount = null;
+        for (Account account : getUserAccounts(userId)) {
+            if (Objects.equals(account.getCurrency(), CurrencyService.actualCurrency)) {
+                primaryAccount = account;
+            } else {
+                foreignAccount = account;
+            }
+        }
+
+        if (primaryAccount == null || foreignAccount == null) {
+            throw new AccountNotFoundException(ExceptionMessages.ACCOUNT_NOT_FOUND.getMessage());
+        }
 
         updateBalance(
+                primaryAccount,
                 foreignAccount,
-                convertMoneyByRate(foreignAccount.getCurrency(), amount)
+                amount
         );
     }
 
-    public void transferMoneyToOtherUser(User user, double amount) {
+    public void transferMoneyToOtherUser(User senderUser, User recipentUser, double amount) {
         //It finds an account with the same currency as the account that provides the money.
-        Account account = getUserAccounts(user.getId())
-                .stream()
-               .filter(a -> Objects.equals(a.getCurrency(), CurrencyService.DEFAULT_CURRENCY))
-               .findFirst()
-               .orElseThrow(() -> new AccountNotFoundException("User does not have an account"));
+        Account recipentDefaultAccount = findUserAccountByCurrency(recipentUser, CurrencyService.DEFAULT_CURRENCY);
+        Account senderDefaultAccount = findUserAccountByCurrency(senderUser, CurrencyService.actualCurrency);
 
-        updateBalance(account, convertMoneyByRate(CurrencyService.DEFAULT_CURRENCY, amount));
+        updateBalance(
+                senderDefaultAccount,
+                recipentDefaultAccount,
+                amount
+        );
+    }
+
+    private Account findUserAccountByCurrency(User recipentUser, String currency) {
+        return getUserAccounts(recipentUser.getId())
+                .stream()
+                .filter(a -> Objects.equals(a.getCurrency(), currency))
+                .findFirst()
+                .orElseThrow(() -> new AccountNotFoundException("User does not have an account"));
     }
 
     public Double convertMoneyByRate(String currency, Double amount) {

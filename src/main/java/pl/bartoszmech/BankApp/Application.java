@@ -80,8 +80,9 @@ public class Application implements CommandLineRunner {
 		if (choice == 1) {
 			accountService.transferMoneyToForeignAccount(userId, amount);
 		} else {
-			User user = userService.findByUsername(inputService.askForUsername());
-			accountService.transferMoneyToOtherUser(user, amount);
+			User senderUser = userService.findByUserId(userId);
+			User recipentUser = userService.findByUsername(inputService.askForUsername());
+			accountService.transferMoneyToOtherUser(senderUser, recipentUser, amount);
 		}
 	}
 
@@ -110,7 +111,7 @@ public class Application implements CommandLineRunner {
 			System.out.println("Deposit failed. The transaction exceeds the debit limit.");
 			return;
 		}
-		accountService.updateBalance(account, amount);
+		accountService.addToBalance(account, amount);
 	}
 
 	public boolean checkIfLegal(Double currentBalance, Double amount) {
@@ -119,7 +120,7 @@ public class Application implements CommandLineRunner {
 
 	private void withdrawMoney(Account account) {
 		Double amount = inputService.askForAmount();
-		accountService.updateBalance(
+		accountService.addToBalance(
 				account,
 				amount
 		);
