@@ -15,13 +15,18 @@ public class InputService {
     public InputService() {
         this.scanner = new Scanner(System.in);
     }
-    public byte printMenu() {
-        System.out.println("----BankApp MENU----");
+    public byte printMenu(boolean hasForeignAccount) {
+        System.out.println("----BankApp MENU---- (" + CurrencyService.actualCurrency + ")");
         System.out.println("1. See your balance");
         System.out.println("2. Deposit money");
         System.out.println("3. Withdraw money");
-        System.out.println("4. Create foreign account");
-        System.out.println("5. Quit App");
+        if (hasForeignAccount) {
+            System.out.println("4. Swap accounts");
+        } else {
+            System.out.println("4. Create foreign account");
+        }
+        System.out.println("5. Transfer");
+        System.out.println("6. Quit App");
         byte choice = scanner.nextByte();
         scanner.nextLine();
 
@@ -41,11 +46,9 @@ public class InputService {
         System.out.println("How much money do you want to provide?");
         double amount = scanner.nextDouble();
         scanner.nextLine();
-
         if(amount < 0) {
             throw new InvalidValueException(ExceptionMessages.INVALID_VALUE.getMessage());
         }
-
         return amount;
     }
 
@@ -107,5 +110,20 @@ public class InputService {
         }
 
         throw new InvalidValueException("Provided value is not valid");
+    }
+
+
+    public double askForAccount() {
+        System.out.println("Where are you transferring your money");
+        System.out.println("1. To my foreign account");
+        System.out.println("2. To other client account");
+        double choice = scanner.nextDouble();
+        scanner.nextLine();
+        return choice;
+    }
+
+    public String askForUsername() {
+        System.out.println("Please enter the username of the user you want to transfer money to");
+        return scanner.nextLine();
     }
 }

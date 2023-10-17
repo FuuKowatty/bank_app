@@ -4,15 +4,17 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import pl.bartoszmech.BankApp.exception.AccountNotFoundException;
+import pl.bartoszmech.BankApp.exception.InvalidValueException;
 import pl.bartoszmech.BankApp.exception.UserNotFoundException;
 import pl.bartoszmech.BankApp.model.Account;
+import pl.bartoszmech.BankApp.model.User;
 import pl.bartoszmech.BankApp.service.*;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.Objects;
+
 @SpringBootApplication
 public class Application implements CommandLineRunner {
-	private static final String DEFAULT_CURRENCY = "EURO";
 	private static final Double LIMIT_DEBIT = -2000D;
 
 	private final AccountService accountService;
@@ -37,63 +39,96 @@ public class Application implements CommandLineRunner {
 	}
 
 	@Override
-	public void run(String... args) throws UserNotFoundException, IOException {
+	public void run(String... args) throws UserNotFoundException {
 		Long loggedUserId;
 		byte authenticateOption = inputService.askForAuthentication();
 		if(authenticateOption == 1) {
 			loggedUserId = authenticationService.login();
 		} else if (authenticateOption == 2) {
-			loggedUserId = authenticationService.register(DEFAULT_CURRENCY);
+			loggedUserId = authenticationService.register();
 		} else {
 			System.out.println("Something went wrong");
 			return;
 		}
 		byte choice;
 		do {
-			choice = inputService.printMenu();
+			choice = inputService.printMenu(accountService.hasMultipleAccounts(loggedUserId));
+			Account userAccount = accountService.findAccountByUserId(loggedUserId);
 			switch (choice) {
-				case 1 -> viewBalance(loggedUserId);
-				case 2 -> withdrawMoney(loggedUserId, DEFAULT_CURRENCY);
-				case 3 -> depositMoney(loggedUserId, DEFAULT_CURRENCY);
-				case 4 -> createForeignAccount(loggedUserId);
-			}
-		} while (choice != 5);
+				case 1 -> viewBalance(userAccount);
+				case 2 -> withdrawMoney(userAccount);
+				case 3 -> depositMoney(userAccount);
+				case 4 -> {
+					if(accountService.hasMultipleAccounts(loggedUserId)) {
+						changeAccount(loggedUserId);
+					} else {
+						createForeignAccount(loggedUserId);
+					}
+				}
+				case 5 -> transferMoney(loggedUserId);
+			};
+		} while (choice != 6);
+	}
+
+	private void transferMoney(long userId) {
+		double choice = inputService.askForAccount();
+
+		if(choice != 1D && choice != 2D) {
+			throw new InvalidValueException("Provided option is not valid");
+		}
+		double amount = inputService.askForAmount();
+		if (choice == 1) {
+			accountService.transferMoneyToForeignAccount(userId, amount);
+		} else {
+			User user = userService.findByUsername(inputService.askForUsername());
+			accountService.transferMoneyToOtherUser(user, amount);
+		}
+	}
+
+	private void changeAccount(long userId) {
+		CurrencyService.actualCurrency = accountService
+				.getUserAccounts(userId).stream().filter(a -> !Objects.equals(a.getCurrency(), CurrencyService.actualCurrency))
+				.findFirst()
+				.orElseThrow(() -> new AccountNotFoundException(""))
+				.getCurrency();
 	}
 
 	private void createForeignAccount(Long loggedUserId) {
-		String output = inputService.askForCurrency();
-		String currency = accountService.getCurrencySymbol(output);
-		accountService.createAccount(userService.findByUserId(loggedUserId), currency);
+		accountService
+				.createAccount(
+						userService.findByUserId(loggedUserId),
+						accountService.getCurrencySymbol(inputService.askForCurrency())
+				);
 	}
 
-	private void depositMoney(Long userId, String currency) {
+	private void depositMoney(Account account) {
 		Double amount = (inputService.askForAmount() * -1); // because we sum up to our balance
-		Account userAccount = accountService.getUserAccountByCurrency(userId, currency);
 
-		boolean isLegalDebit = checkIfLegal(userAccount.getBalance(), amount);
+		boolean isLegalDebit = checkIfLegal(account.getBalance(), amount);
 
 		if (!isLegalDebit) {
 			System.out.println("Deposit failed. The transaction exceeds the debit limit.");
 			return;
 		}
-		accountService.updateBalance(userAccount, amount);
+		accountService.updateBalance(account, amount);
 	}
 
 	public boolean checkIfLegal(Double currentBalance, Double amount) {
 		return currentBalance + amount > Application.LIMIT_DEBIT;
 	}
 
-	private void withdrawMoney(Long userId, String currency) {
+	private void withdrawMoney(Account account) {
 		Double amount = inputService.askForAmount();
 		accountService.updateBalance(
-				accountService.getUserAccountByCurrency(userId, currency),
+				account,
 				amount
 		);
 	}
 
-	private void viewBalance(Long userId) {
-		List<Account> userAccounts = accountService.getUserAccounts(userId);
-		System.out.println(userAccounts.get(0).getBalance());
+	private void viewBalance(Account account) {
+		System.out.println(account.getBalance());
 	}
+
+
 
 }

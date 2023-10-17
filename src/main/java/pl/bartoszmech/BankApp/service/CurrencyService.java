@@ -16,7 +16,8 @@ import pl.bartoszmech.BankApp.ExchangeRates;
 
 @Service
 public class CurrencyService {
-
+    static public String actualCurrency = "EUR";
+    static public final String DEFAULT_CURRENCY = "EUR";
     static Map<String, String> allowedCurrencies() {
         Map<String, String> countryToCurrency = new HashMap<>();
 
@@ -29,15 +30,10 @@ public class CurrencyService {
         return countryToCurrency;
     }
 
-    public void getExchangeRates() throws IOException {
-        ExchangeRates exchangeRates = fetchRates();
-        System.out.println(exchangeRates.getConversionRates());
-    }
-
-    private ExchangeRates fetchRates() {
+    public ExchangeRates fetchRates() {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://v6.exchangerate-api.com/v6/3428fae301d832296fad9132/latest/EUR")
+                .url("https://v6.exchangerate-api.com/v6/3428fae301d832296fad9132/latest/" + CurrencyService.actualCurrency)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {

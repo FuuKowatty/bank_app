@@ -38,7 +38,7 @@ public class AccountServiceTest {
 
         //then
         assertThrows(AccountNotFoundException.class, () -> {
-            accountService.getUserAccountByCurrency(user.getId(), currency);
+            accountService.findAccountByUserId(user.getId());
         });
     };
 }

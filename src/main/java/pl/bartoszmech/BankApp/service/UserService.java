@@ -14,6 +14,7 @@ import java.util.List;
 
 @Service
 public class UserService {
+    static String DEFAULT_CURRENCY = "EUR";
     @Autowired private UserRepository userRepository;
     @Autowired private AccountRepository accountRepository;
 
@@ -24,5 +25,11 @@ public class UserService {
     }
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User with such username does not exist"));
     }
 }

@@ -35,12 +35,12 @@ public class AuthenticationService {
         return user.getId();
     }
 
-    public Long register(String DEFAULT_CURRENCY) {
+    public Long register() {
         User attemptData = inputService.askForRegister();
         //some validation in the future ...
         ;
         User user = userRepository.save(attemptData);
-        accountService.createAccount(user, DEFAULT_CURRENCY);
+        accountService.createAccount(user, CurrencyService.actualCurrency);
 
         return user.getId();
     }
