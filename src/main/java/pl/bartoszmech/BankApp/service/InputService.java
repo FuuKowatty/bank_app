@@ -5,6 +5,7 @@ import pl.bartoszmech.BankApp.enums.ExceptionMessages;
 import pl.bartoszmech.BankApp.exception.InvalidValueException;
 import pl.bartoszmech.BankApp.model.User;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -26,7 +27,8 @@ public class InputService {
             System.out.println("4. Create foreign account");
         }
         System.out.println("5. Transfer");
-        System.out.println("6. Quit App");
+        System.out.println("6. Transactions History");
+        System.out.println("7. Quit App");
         byte choice = scanner.nextByte();
         scanner.nextLine();
 
@@ -42,11 +44,11 @@ public class InputService {
         return scanner.nextLine();
     }
 
-    public Double askForAmount() {
+    public BigDecimal askForAmount() {
         System.out.println("How much money do you want to provide?");
-        double amount = scanner.nextDouble();
+        BigDecimal amount = scanner.nextBigDecimal();
         scanner.nextLine();
-        if(amount < 0) {
+        if(amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new InvalidValueException(ExceptionMessages.INVALID_VALUE.getMessage());
         }
         return amount;

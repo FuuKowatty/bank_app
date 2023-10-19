@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Table(name = "transactions")
@@ -21,6 +22,6 @@ public class Transaction {
     @JoinColumn(name = "account_id")
     private Account account;
     private String currency;
-    private Float amount;
+    private BigDecimal amount;
     private LocalDateTime date = LocalDateTime.now();
 }

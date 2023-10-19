@@ -3,6 +3,7 @@ package pl.bartoszmech.BankApp.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +15,14 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String currency;
-    private Double balance = 0.00;
+    private BigDecimal balance = new BigDecimal(0);
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
     private User user;
 
-    public Account(Long id, String currency, Double balance, LocalDateTime createdAt, User user) {
+    public Account(Long id, String currency, BigDecimal balance, LocalDateTime createdAt, User user) {
         super();
         this.id = id;
         this.currency = currency;
@@ -34,7 +35,13 @@ public class Account {
         super();
     }
 
+    public BigDecimal getBalance() {
+        return balance;
+    }
 
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
 
     public String getCurrency() {
         return currency;
@@ -44,13 +51,6 @@ public class Account {
         this.currency = currency;
     }
 
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

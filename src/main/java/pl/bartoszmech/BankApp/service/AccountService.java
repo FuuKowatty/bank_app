@@ -45,13 +45,13 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public void updateBalance(Account senderAccount, Account recipientAccount, double amount) {
-        addToBalance(senderAccount, -amount);
+    public void updateBalance(Account senderAccount, Account recipientAccount, BigDecimal amount) {
+        addToBalance(senderAccount, amount.multiply(new BigDecimal(-1)));
         addToBalance(recipientAccount, convertMoneyByRate(recipientAccount.getCurrency(), amount));
     }
 
-    public void addToBalance(Account account, Double amount) {
-        account.setBalance(account.getBalance() + amount);
+    public void addToBalance(Account account, BigDecimal amount) {
+        account.setBalance(account.getBalance().add(amount));
         saveAccount(account);
     }
 
@@ -67,7 +67,7 @@ public class AccountService {
         return accountRepository.findByUserId(userId).size() > 1;
     }
 
-    public void transferMoneyToForeignAccount(long userId, double amount) {
+    public void transferMoneyToForeignAccount(long userId, BigDecimal amount) {
         Account foreignAccount = null;
         Account primaryAccount = null;
         for (Account account : getUserAccounts(userId)) {
@@ -89,7 +89,7 @@ public class AccountService {
         );
     }
 
-    public void transferMoneyToOtherUser(User senderUser, User recipentUser, double amount) {
+    public void transferMoneyToOtherUser(User senderUser, User recipentUser, BigDecimal amount) {
         //It finds an account with the same currency as the account that provides the money.
         Account recipentDefaultAccount = findUserAccountByCurrency(recipentUser, CurrencyService.DEFAULT_CURRENCY);
         Account senderDefaultAccount = findUserAccountByCurrency(senderUser, CurrencyService.actualCurrency);
@@ -109,17 +109,13 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException("User does not have an account"));
     }
 
-    public Double convertMoneyByRate(String currency, Double amount) {
+    public BigDecimal convertMoneyByRate(String currency, BigDecimal amount) {
         double exchangeRate = currencyService
                 .fetchRates()
                 .getConversionRate(currency)
                 .getValue();
 
-        BigDecimal amountToConvert = new BigDecimal(amount);
         BigDecimal exchangeRateBigDecimal = new BigDecimal(exchangeRate);
-        return amountToConvert
-                .multiply(exchangeRateBigDecimal)
-                .setScale(2, RoundingMode.HALF_UP)
-                .doubleValue();
+        return amount.multiply(exchangeRateBigDecimal);
     }
 }

@@ -11,11 +11,12 @@ import pl.bartoszmech.BankApp.model.Account;
 import pl.bartoszmech.BankApp.model.User;
 import pl.bartoszmech.BankApp.service.*;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
-	private static final Double LIMIT_DEBIT = -2000D;
+	private static final BigDecimal LIMIT_DEBIT = new BigDecimal(-2000);
 
 	private final AccountService accountService;
 	private final UserService userService;
@@ -66,8 +67,12 @@ public class Application implements CommandLineRunner {
 					}
 				}
 				case 5 -> transferMoney(loggedUserId);
+				case 6 -> viewTransactions();
 			};
-		} while (choice != 6);
+		} while (choice != 7);
+	}
+
+	private void viewTransactions() {
 	}
 
 	private void transferMoney(long userId) {
@@ -76,7 +81,7 @@ public class Application implements CommandLineRunner {
 		if(choice != 1D && choice != 2D) {
 			throw new InvalidValueException("Provided option is not valid");
 		}
-		double amount = inputService.askForAmount();
+		BigDecimal amount = inputService.askForAmount();
 		if (choice == 1) {
 			accountService.transferMoneyToForeignAccount(userId, amount);
 		} else {
@@ -103,7 +108,7 @@ public class Application implements CommandLineRunner {
 	}
 
 	private void depositMoney(Account account) {
-		Double amount = (inputService.askForAmount() * -1); // because we sum up to our balance
+		BigDecimal amount = (inputService.askForAmount().multiply(new BigDecimal(-1))); // because we sum up to our balance
 
 		boolean isLegalDebit = checkIfLegal(account.getBalance(), amount);
 
@@ -114,12 +119,12 @@ public class Application implements CommandLineRunner {
 		accountService.addToBalance(account, amount);
 	}
 
-	public boolean checkIfLegal(Double currentBalance, Double amount) {
-		return currentBalance + amount > Application.LIMIT_DEBIT;
+	public boolean checkIfLegal(BigDecimal currentBalance, BigDecimal amount) {
+		return currentBalance.add(amount).compareTo(Application.LIMIT_DEBIT) > 0;
 	}
 
 	private void withdrawMoney(Account account) {
-		Double amount = inputService.askForAmount();
+		BigDecimal amount = inputService.askForAmount();
 		accountService.addToBalance(
 				account,
 				amount
