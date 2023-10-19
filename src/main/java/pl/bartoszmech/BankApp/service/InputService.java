@@ -19,8 +19,8 @@ public class InputService {
     public byte printMenu(boolean hasForeignAccount) {
         System.out.println("----BankApp MENU---- (" + CurrencyService.actualCurrency + ")");
         System.out.println("1. See your balance");
-        System.out.println("2. Deposit money");
-        System.out.println("3. Withdraw money");
+        System.out.println("2. Withdraw money");
+        System.out.println("3. Deposit money");
         if (hasForeignAccount) {
             System.out.println("4. Swap accounts");
         } else {
@@ -31,8 +31,6 @@ public class InputService {
         System.out.println("7. Quit App");
         byte choice = scanner.nextByte();
         scanner.nextLine();
-
-        //make exception (invalidValue exception could take arguments and be used there)
 
         return choice;
     }
@@ -115,11 +113,11 @@ public class InputService {
     }
 
 
-    public double askForAccount() {
+    public byte askForAccount() {
         System.out.println("Where are you transferring your money");
         System.out.println("1. To my foreign account");
         System.out.println("2. To other client account");
-        double choice = scanner.nextDouble();
+        byte choice = scanner.nextByte();
         scanner.nextLine();
         return choice;
     }

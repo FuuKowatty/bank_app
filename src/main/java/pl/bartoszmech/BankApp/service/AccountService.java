@@ -3,6 +3,7 @@ package pl.bartoszmech.BankApp.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.bartoszmech.BankApp.enums.ExceptionMessages;
+import pl.bartoszmech.BankApp.enums.TransactionType;
 import pl.bartoszmech.BankApp.exception.AccountNotFoundException;
 import pl.bartoszmech.BankApp.model.Account;
 import pl.bartoszmech.BankApp.model.User;
@@ -20,6 +21,10 @@ public class AccountService {
     @Autowired private UserRepository userRepository;
 
     @Autowired private CurrencyService currencyService;
+    @Autowired private TransactionService transactionService;
+
+    public AccountService() {
+    }
 
     public void createAccount(User user, String currency) {
         Account account = new Account();
@@ -87,6 +92,21 @@ public class AccountService {
                 foreignAccount,
                 amount
         );
+        transactionService.saveTransfer(
+                amount,
+                convertCurrency(primaryAccount.getCurrency(), foreignAccount.getCurrency()),
+                foreignAccount.getId(),
+                primaryAccount.getId(),
+                TransactionType.TRANSFER_BETWEEN_ACCOUNTS
+        );
+
+    }
+
+    private String convertCurrency(String senderCurrency, String recipentCurrency) {
+        if(Objects.equals(senderCurrency, recipentCurrency)) {
+            return senderCurrency;
+        }
+        return senderCurrency + "/" + recipentCurrency;
     }
 
     public void transferMoneyToOtherUser(User senderUser, User recipentUser, BigDecimal amount) {
@@ -98,6 +118,13 @@ public class AccountService {
                 senderDefaultAccount,
                 recipentDefaultAccount,
                 amount
+        );
+        transactionService.saveTransfer(
+                amount,
+                convertCurrency(senderDefaultAccount.getCurrency(), recipentDefaultAccount.getCurrency()),
+                recipentDefaultAccount.getId(),
+                senderDefaultAccount.getId(),
+                TransactionType.TRANSFER_TO_ANOTHER_ACCOUNT
         );
     }
 

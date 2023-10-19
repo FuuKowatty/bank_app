@@ -23,13 +23,15 @@ public class Application implements CommandLineRunner {
 	private final InputService inputService;
 	private final AuthenticationService authenticationService;
 	private final CurrencyService currencyService;
+	private final TransactionService transactionService;
 
-	public Application(AccountService accountService, UserService userService, InputService inputService, AuthenticationService authenticationService, CurrencyService currencyService) {
+	public Application(AccountService accountService, UserService userService, InputService inputService, AuthenticationService authenticationService, CurrencyService currencyService, TransactionService transactionService) {
 		this.accountService = accountService;
 		this.userService = userService;
 		this.inputService = inputService;
 		this.authenticationService = authenticationService;
 		this.currencyService = currencyService;
+		this.transactionService = transactionService;
 	}
 
 	public static void main(String[] args) {
@@ -76,9 +78,9 @@ public class Application implements CommandLineRunner {
 	}
 
 	private void transferMoney(long userId) {
-		double choice = inputService.askForAccount();
+		byte choice = inputService.askForAccount();
 
-		if(choice != 1D && choice != 2D) {
+		if(choice != 1 && choice != 2) {
 			throw new InvalidValueException("Provided option is not valid");
 		}
 		BigDecimal amount = inputService.askForAmount();
@@ -90,12 +92,11 @@ public class Application implements CommandLineRunner {
 			accountService.transferMoneyToOtherUser(senderUser, recipentUser, amount);
 		}
 	}
-
 	private void changeAccount(long userId) {
 		CurrencyService.actualCurrency = accountService
 				.getUserAccounts(userId).stream().filter(a -> !Objects.equals(a.getCurrency(), CurrencyService.actualCurrency))
 				.findFirst()
-				.orElseThrow(() -> new AccountNotFoundException(""))
+				.orElseThrow(() -> new AccountNotFoundException("User not found"))
 				.getCurrency();
 	}
 
@@ -117,6 +118,7 @@ public class Application implements CommandLineRunner {
 			return;
 		}
 		accountService.addToBalance(account, amount);
+		transactionService.savePayment(amount, CurrencyService.actualCurrency, account.getId());
 	}
 
 	public boolean checkIfLegal(BigDecimal currentBalance, BigDecimal amount) {
@@ -125,10 +127,8 @@ public class Application implements CommandLineRunner {
 
 	private void withdrawMoney(Account account) {
 		BigDecimal amount = inputService.askForAmount();
-		accountService.addToBalance(
-				account,
-				amount
-		);
+		accountService.addToBalance(account, amount);
+		transactionService.savePayment(amount, CurrencyService.actualCurrency, account.getId());
 	}
 
 	private void viewBalance(Account account) {
