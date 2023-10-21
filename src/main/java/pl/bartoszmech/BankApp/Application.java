@@ -8,10 +8,13 @@ import pl.bartoszmech.BankApp.exception.AccountNotFoundException;
 import pl.bartoszmech.BankApp.exception.InvalidValueException;
 import pl.bartoszmech.BankApp.exception.UserNotFoundException;
 import pl.bartoszmech.BankApp.model.Account;
+import pl.bartoszmech.BankApp.model.Transaction;
 import pl.bartoszmech.BankApp.model.User;
 import pl.bartoszmech.BankApp.service.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 @SpringBootApplication
@@ -22,7 +25,6 @@ public class Application implements CommandLineRunner {
 	private final UserService userService;
 	private final InputService inputService;
 	private final AuthenticationService authenticationService;
-	private final CurrencyService currencyService;
 	private final TransactionService transactionService;
 
 	public Application(AccountService accountService, UserService userService, InputService inputService, AuthenticationService authenticationService, CurrencyService currencyService, TransactionService transactionService) {
@@ -30,7 +32,6 @@ public class Application implements CommandLineRunner {
 		this.userService = userService;
 		this.inputService = inputService;
 		this.authenticationService = authenticationService;
-		this.currencyService = currencyService;
 		this.transactionService = transactionService;
 	}
 
@@ -69,12 +70,19 @@ public class Application implements CommandLineRunner {
 					}
 				}
 				case 5 -> transferMoney(loggedUserId);
-				case 6 -> viewTransactions();
+				case 6 -> viewTransactions(loggedUserId);
 			};
 		} while (choice != 7);
 	}
 
-	private void viewTransactions() {
+	private void viewTransactions(long userId) {
+		byte choice = inputService.askForPrintMethod();
+		List<Transaction> transactions = transactionService.findById(userId);
+		if(choice == 1) {
+			inputService.printUserTransactions(transactions);
+		} else if(choice == 2) {
+			inputService.saveTransactions(transactions);
+		}
 	}
 
 	private void transferMoney(long userId) {
@@ -134,7 +142,5 @@ public class Application implements CommandLineRunner {
 	private void viewBalance(Account account) {
 		System.out.println(account.getBalance());
 	}
-
-
 
 }

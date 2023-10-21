@@ -11,7 +11,6 @@ import pl.bartoszmech.BankApp.repository.AccountRepository;
 import pl.bartoszmech.BankApp.repository.UserRepository;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
@@ -145,4 +144,16 @@ public class AccountService {
         BigDecimal exchangeRateBigDecimal = new BigDecimal(exchangeRate);
         return amount.multiply(exchangeRateBigDecimal);
     }
+
+    public Account findAccountByUserId(long accountId) {
+        return accountRepository
+                .findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+    }
+
+    public String findUsernameByAccountId(long accountId) {
+        Account account = findAccountByUserId(accountId);
+        return account.getUser().getUsername();
+    }
+
 }
