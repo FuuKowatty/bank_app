@@ -11,7 +11,6 @@ import java.util.Map;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import pl.bartoszmech.BankApp.ExchangeRates;
 
 
 @Service
@@ -30,7 +29,7 @@ public class CurrencyService {
         return countryToCurrency;
     }
 
-    public ExchangeRates fetchRates() {
+    public ExchangeRatesService fetchRates() {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://v6.exchangerate-api.com/v6/3428fae301d832296fad9132/latest/" + CurrencyService.actualCurrency)
@@ -39,7 +38,7 @@ public class CurrencyService {
         try (Response response = client.newCall(request).execute()) {
             ResponseBody responseBody = response.body();
             if (response.isSuccessful() && responseBody != null) {
-                return new ObjectMapper().readValue(responseBody.string(), ExchangeRates.class);
+                return new ObjectMapper().readValue(responseBody.string(), ExchangeRatesService.class);
             }
             throw new IOException("jd");
         } catch (IOException e) {

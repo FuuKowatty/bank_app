@@ -1,4 +1,4 @@
-package pl.bartoszmech.BankApp;
+package pl.bartoszmech.BankApp.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ExchangeRates {
+public class ExchangeRatesService {
     @JsonProperty("conversion_rates")
     private Map<String, Double> conversionRates;
     public Map<String, Double> getConversionRates() {

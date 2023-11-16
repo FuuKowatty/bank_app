@@ -1,33 +1,36 @@
-## Features
+# BankApp - Backend
+This project is a console application created in spring-boot which allows user to authenticate, create account and make transfers between accounts.
 
-- **Authentication:**
-- **Payments:** 
-- **Creating Accounts with Foreign Currency:**
-- **Transfers:**
-- **Exchange by Current Rate:**
 
-## Installation
 
-1. Clone this repository to your local machine.
+## Technologies
 
-   ```shell
-   git clone https://github.com/FuuKowatty/bank_app .
-   ```
+* Code: Java 21, Spring Boot 3, MySQL, OKHttp
+* Other: Maven
 
-2. Database configuring
-    ```shell
-    docker pull mysql
-    ```
-   
-    ```shell
-    docker run --name db -e MYSQL_DATABASE=jpa -e MYSQL_ROOT_PASSWORD=root -d -p 3306:3306 mysql
-    ```
-   
-## Usage
-   ```shell
-    .\mvnw spring-boot:run
-   ```  
+## Solved Problems
+During the development of this project I had to face of a bunch of problems. These are a few of them.
 
-## Contact
-For support, feedback, or inquiries, please contact us at [bartoszmech0@gmail.com].
+* Use external API to download currencies exchange
+* Create foreign account
+* Make transfers between users by actual currency
+* Authentication
+* Organize code with conventional commits
 
+## Pre requirements
+1. Ensure that you have installed java (minimum 21) on your computer by
+```shell
+java --version
+```
+
+
+## How to build the project on your own
+1. Clone this repository
+```shell
+git clone https://github.com/FuuKowatty/bank_app.git
+```
+2. Go to the folder with cloned repository
+3. Run the application
+```shell
+.\mvnw spring-boot:run
+```
