@@ -24,7 +24,7 @@ java --version
 ```
 2. Ensure that you have installed docker on your computer by
 ```shell
-java --version
+docker --version
 ```
 3. Open docker service or docker-desktop
 ```shell
@@ -38,7 +38,15 @@ sudo service docker start
 git clone https://github.com/FuuKowatty/bank_app.git
 ```
 2. Go to the folder with cloned repository
-3. Run the application
+3. Build docker image
+```shell
+docker build -t bank-app .
+```
+4. Open database
+```shell
+docker run -d -p 3306:3306 bank-app 
+```
+5. Run the application
 ```shell
 .\mvnw spring-boot:run
 ```
