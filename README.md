@@ -6,7 +6,7 @@ This project is a console application created in spring-boot which allows user t
 ## Technologies
 
 * Code: Java 21, Spring Boot 3, MySQL, OKHttp
-* Other: Maven
+* Other: Docker, Maven
 
 ## Solved Problems
 During the development of this project I had to face of a bunch of problems. These are a few of them.
