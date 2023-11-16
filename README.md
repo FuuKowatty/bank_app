@@ -18,9 +18,17 @@ During the development of this project I had to face of a bunch of problems. The
 * Organize code with conventional commits
 
 ## Pre requirements
-1. Ensure that you have installed java (minimum 21) on your computer by
+1. Ensure that you have installed java on your computer by
 ```shell
 java --version
+```
+2. Ensure that you have installed docker on your computer by
+```shell
+java --version
+```
+3. Open docker service or docker-desktop
+```shell
+sudo service docker start 
 ```
 
 
