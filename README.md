@@ -1,7 +1,7 @@
 # BankApp - Backend
 This project is a console application created in spring-boot which allows user to authenticate, create account and make transfers between accounts.
 
-![APP-GIF](https://im3.ezgif.com/tmp/ezgif-3-5581793eed.gif)
+![APP-GIF](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOW9oMTQ3ZWRqOHFpaDg2NWN4Y2gzamRzYmptNHZhbTh1MngwcGdmbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DdSKXHQdc0PMfwpd6N/source.gif)
 
 ## Technologies
 
